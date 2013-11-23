@@ -1,0 +1,36 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  color: #ddd;
+  background: #2a2c39;
+  font-family: 'Cardo', serif;
+}
+body {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 0 1em;
+  text-align: center;
+  font-size: 16px;
+}
+a {
+  color: #e62020;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+header {
+  padding: 5em 0 0;
+  cursor: default;
+}
+h1 {
+  margin: 0;
+  padding: 0.5em 0;
+  color: #e62020;
+  font-size: 2em;
+  font-weight: normal;
+  border-bottom: 1px solid #ddd;
+}
+section {
+  padding: 1em 0;
+}
