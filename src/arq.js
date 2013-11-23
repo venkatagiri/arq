@@ -93,12 +93,10 @@ app.get('/callback', function(request, response) {
   });
 });
 
-var arq = {
-  start: function() {
-    app.listen(config.port, function() {
-      console.log('Listening on port', config.port);
-    });
-  }
+app.start = function() {
+  this.listen(config.port, function() {
+    console.log('Listening on port', config.port);
+  });
 };
 
-module.exports = arq;
+module.exports = app;
