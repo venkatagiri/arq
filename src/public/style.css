@@ -6,31 +6,65 @@ html, body {
   font-family: 'Cardo', serif;
 }
 body {
-  max-width: 500px;
+  max-width: 560px;
   margin: 0 auto;
   padding: 0 1em;
-  text-align: center;
   font-size: 16px;
 }
 a {
-  color: #e62020;
+  color: #ddd;
   text-decoration: none;
+  border-bottom: 1px solid #e62020;
 }
 a:hover {
-  text-decoration: underline;
+  color: #e62020;
+}
+p {
+  margin: 0.5em 0;
 }
 header {
   padding: 5em 0 0;
   cursor: default;
 }
 h1 {
-  margin: 0;
-  padding: 0.5em 0;
+  padding: 0;
+  margin: 0.5em 0;
   color: #e62020;
   font-size: 2em;
   font-weight: normal;
-  border-bottom: 1px solid #ddd;
+}
+h2 {
+  padding: 0;
+  margin: 0.5em 0;
+  font-weight: normal;
+}
+.controls {
+  float: right;
+  margin-top: 2em;
 }
 section {
-  padding: 1em 0;
+  margin: 1em 0;
+}
+form {
+  margin: 1em 0;
+}
+.loggedin section {
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+.notification {
+  position: relative;
+  margin-bottom: -25px;
+  text-align: center;
+  z-index: 999999999;
+  width: 100%;
+}
+.notification span {
+  margin: 0 auto;
+  font-size: 0.8em;
+  padding: 3px 10px;
+  background: #fef6a8 none no-repeat 20px center;
+  border: 1px solid #fcfc19;
+  color: #e62020;
+  border-radius: 3px 3px;
 }

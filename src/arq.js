@@ -4,7 +4,8 @@ var express = require('express'),
   app = express(),
   config = require('./config'),
   reddit = require('./reddit'),
-  User = require('./user');
+  User = require('./user'),
+  helpers = require('./helpers');
 
 // Base Setup
 app.configure(function() {
@@ -47,9 +48,11 @@ app.configure(function() {
   // Connect mongoose to the DB
   mongoose.connect(config.mongodbUrl);
 
-  // Load the user from the session.
+  // From the session, load the user & messages
   app.use(function(request, response, next) {
     response.locals.user = request.session.user;
+    response.locals.msg = request.session.msg;
+    delete request.session.msg;
     next();
   });
 });
@@ -89,6 +92,27 @@ app.get('/callback', function(request, response) {
           });
         });
       });
+    });
+  });
+});
+
+app.post('/schedule', function(request, response) {
+  if(!request.session.user) return response.send('Invalid Request!');
+
+  User.findOne({name: request.session.user.name}, function(err, user) {
+    user.schedulePost({
+      title: request.body.title,
+      link: request.body.link,
+      subreddit: request.body.subreddit,
+      scheduledTime: helpers.parseDate(request.body.date, request.body.time, request.body.timezoneOffset)
+    }, function(err) {
+      if(err) {
+        request.session.msg = err;
+        response.redirect('arq/');
+      } else {
+        request.session.msg = 'Link has been scheduled!';
+        response.redirect('arq/');
+      }
     });
   });
 });
