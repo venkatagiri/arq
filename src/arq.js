@@ -66,6 +66,11 @@ app.get('/login', function(request, response) {
   reddit.login(request, response);
 });
 
+app.get('/logout', function(request, response) {
+  request.session.destroy();
+  response.redirect('arq/'); //TODO
+});
+
 app.get('/callback', function(request, response) {
   var code = request.query.code;
   if(!code) return response.send('Invalid Response!');
