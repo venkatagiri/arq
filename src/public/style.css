@@ -6,7 +6,7 @@ html, body {
   font-family: 'Cardo', serif;
 }
 body {
-  max-width: 560px;
+  max-width: 700px;
   margin: 0 auto;
   padding: 0 1em;
   font-size: 16px;
@@ -16,12 +16,15 @@ a {
   text-decoration: none;
   border-bottom: 1px solid #e62020;
 }
-a:hover {
+a:hover, a.active {
   color: #e62020;
+  border-bottom: 0;
 }
 p {
   margin: 0.5em 0;
 }
+
+/* Header */
 header {
   padding: 5em 0 0;
   cursor: default;
@@ -42,12 +45,28 @@ h2 {
   float: right;
   margin-top: 2em;
 }
+
+/* Navigation */
+nav {
+  margin: 1em 0;
+  text-align: center;
+  font-size: 1.5em;
+}
+nav .divider {
+  margin: 0 2em;
+}
+
+/* Main */
 section {
   margin: 1em 0;
 }
-form {
-  margin: 1em 0;
+article {
+  display: none;
 }
+article:target {
+  display: block;
+}
+
 .loggedin section {
   border-top: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
@@ -67,4 +86,19 @@ form {
   border: 1px solid #fcfc19;
   color: #e62020;
   border-radius: 3px 3px;
+}
+
+/* Scheduled Posts */
+.posts {
+  list-style-type: disc;
+  padding: 0 2em;
+  margin: 1em 0;
+}
+.posts .post {
+  padding: 0.5em 0;
+}
+
+/* New Post */
+form {
+  margin: 1em 0;
 }

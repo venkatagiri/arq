@@ -59,7 +59,14 @@ app.configure(function() {
 
 // App Endpoints
 app.get('/', function(request, response) {
-  response.render('index');
+  if(request.session.user) {
+    User.findOne({name: request.session.user.name}, function(err, user) {
+      response.locals.posts = user.posts;
+      response.render('index');
+    });
+  } else {
+    response.render('index');
+  }
 });
 
 app.get('/login', function(request, response) {

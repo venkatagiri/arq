@@ -28,38 +28,73 @@
   </header>
   <section>
     <% if(!user) { %>
-      <p>Get started by <a href="login">signing into Reddit</a>.</p>
+      <p>Get started by <a href="login">signing in with Reddit</a>.</p>
     <% } else { %>
-      <h2>Schedule a Post</h2>
-      <form class="pure-form pure-form-aligned" method="post" action="schedule">
-        <div class="pure-control-group">
-          <label for="title">Title</label>
-          <input type="text" name="title" placeholder="title" id="title" />
-        </div>
-        <div class="pure-control-group">
-          <label for="link">Link</label>
-          <input type="text" name="link" placeholder="link" id="link" />
-        </div>
-        <div class="pure-control-group">
-          <label for="subreddit">SubReddit</label>
-          <input type="text" name="subreddit" placeholder="subreddit" id="subreddit" />
-        </div>
-        <div class="pure-control-group">
-          <label for="time">Post it @</label>
-          <input type="text" name="date" placeholder="YYYY-MM-DD" id="date" class="pure-u-1-5" />
-          <input type="text" name="time" placeholder="HH:24" id="time" class="pure-u-1-8" />
-        </div>
-        <div class="pure-control-group">
-          <label for="submit"></label>
-          <input type="submit" class="pure-button pure-button-primary" style="font-size: 0.8em" value="Queue It Up" />
-        </div>
-      </form>
+      <nav>
+        <a href="#posts" class="active">Scheduled Posts</a>
+        <span class="divider">/</span>
+        <a href="#new">New Post</a>
+      </nav>
+      <article id="new">
+        <form class="pure-form pure-form-aligned" method="post" action="schedule">
+          <div class="pure-control-group">
+            <label for="title">Title</label>
+            <input type="text" name="title" placeholder="title" id="title" />
+          </div>
+          <div class="pure-control-group">
+            <label for="link">Link</label>
+            <input type="text" name="link" placeholder="link" id="link" />
+          </div>
+          <div class="pure-control-group">
+            <label for="subreddit">SubReddit</label>
+            <input type="text" name="subreddit" placeholder="subreddit" id="subreddit" />
+          </div>
+          <div class="pure-control-group">
+            <label for="time">Post it @</label>
+            <input type="text" name="date" placeholder="YYYY-MM-DD" id="date" class="pure-u-1-5" />
+            <input type="text" name="time" placeholder="HH:24" id="time" class="pure-u-1-8" />
+          </div>
+          <div class="pure-control-group">
+            <label for="submit"></label>
+            <input type="submit" class="pure-button pure-button-primary" style="font-size: 0.8em" value="Queue It Up" />
+          </div>
+        </form>
+        <script>
+          var el = document.createElement('input');
+          el.type = 'hidden';
+          el.name = 'timezoneOffset';
+          el.value = new Date().getTimezoneOffset();
+          document.forms[0].appendChild(el);
+        </script>
+      </article>
+      <article id="posts">
+        <% if(posts.length === 0) { %>
+        <br />
+        <p>Boooo! None yet. </p>
+        <% } else { %>
+        <ul class="posts">
+        <% posts.forEach(function(el, index) { %>
+          <li class="post">
+            <a href="<%= el.link %>" target="_blank"><%= el.title %></a>
+            <small>/r/<%= el.subreddit %>
+            (scheduled at <%= el.scheduledTime.toLocaleDateString() + ' ' + el.scheduledTime.toLocaleTimeString() %>)</small>
+          </li>
+        <% }); %>
+        </ul>
+        <% } %>
+      </article>
       <script>
-        var el = document.createElement('input');
-        el.type = 'hidden';
-        el.name = 'timezoneOffset';
-        el.value = new Date().getTimezoneOffset();
-        document.forms[0].appendChild(el);
+        // Show scheduled posts by default.
+        location.href = '#posts';
+        document.getElementsByTagName('nav')[0].addEventListener('click', function onClick(e) {
+          if(e.target.tagName !== 'A') return;
+          var nodes = e.target.parentNode.childNodes;
+          // Remove 'active' class from nav elements.
+          for(var i in nodes) if(nodes[i] && nodes[i].tagName === 'A') nodes[i].className = '';
+          // Set the clicked element as active.
+          e.target.className = 'active';
+        });
+
       </script>
     <% } %>
   </section>
