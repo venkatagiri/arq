@@ -34,14 +34,34 @@ module.exports = {
         callback(JSON.parse(res.text));
       });
   },
-  call: function(url, accessToken, callback) {
+  get: function(accessToken, url, callback) {
     agent.get(url)
       .set('Authorization', 'Bearer ' + accessToken)
       .end(function(res) {
         callback(JSON.parse(res.text));
       });
   },
+  post: function(accessToken, url, params, callback) {
+    agent
+      .post(url)
+      .type('form')
+      .send(params)
+      .set('Authorization', 'Bearer ' + accessToken)
+      .end(function(res) {
+        callback(JSON.parse(res.text));
+      });
+  },
   userDetails: function(accessToken, callback) {
-    this.call(config.url.details, accessToken, callback);
+    this.get(accessToken, config.url.details, callback);
+  },
+  submit: function(accessToken, data, callback) {
+    var params = {
+      api_type: 'json',
+      kind: 'link',
+      sr: data.subreddit,
+      title: data.title,
+      url: data.link
+    };
+    this.post(accessToken, config.url.submit, data, callback);
   }
 };
