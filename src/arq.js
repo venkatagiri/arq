@@ -5,6 +5,7 @@ var express = require('express'),
   config = require('./config'),
   reddit = require('./reddit'),
   User = require('./user'),
+  Post = require('./post'),
   helpers = require('./helpers');
 
 // Base Setup
@@ -55,13 +56,19 @@ app.configure(function() {
     delete request.session.msg;
     next();
   });
+
+  // Provide access to helper methods from templates
+  app.use(function(request, response, next) {  
+    response.locals.formatTime = helpers.formatTime;
+    next();
+  });
 });
 
 // App Endpoints
 app.get('/', function(request, response) {
   if(request.session.user) {
-    User.findOne({name: request.session.user.name}, function(err, user) {
-      response.locals.posts = user.posts;
+    Post.find({username: request.session.user.name}, function(err, posts) {
+      response.locals.posts = posts;
       response.render('index');
     });
   } else {
@@ -111,28 +118,40 @@ app.get('/callback', function(request, response) {
 app.post('/schedule', function(request, response) {
   if(!request.session.user) return response.send('Invalid Request!');
 
-  User.findOne({name: request.session.user.name}, function(err, user) {
-    user.schedulePost({
-      title: request.body.title,
-      link: request.body.link,
-      subreddit: request.body.subreddit,
-      scheduledTime: helpers.parseDate(request.body.date, request.body.time, request.body.timezoneOffset)
-    }, function(err) {
-      if(err) {
-        request.session.msg = err;
-        response.redirect('arq/');
-      } else {
-        request.session.msg = 'Link has been scheduled!';
-        response.redirect('arq/');
-      }
-    });
+  Post.create({
+    username: request.session.user.name,
+    title: request.body.title,
+    link: request.body.link,
+    subreddit: request.body.subreddit,
+    timezoneOffset: parseInt(request.body.timezoneOffset, 10),
+    scheduledTime: helpers.parseDate(request.body.date, request.body.time, request.body.timezoneOffset)
+  }, function(err) {
+    if(err) {
+      request.session.msg = err;
+      response.redirect('arq/');
+    } else {
+      request.session.msg = 'Link has been scheduled!';
+      response.redirect('arq/');
+    }
   });
 });
+
+app.triggerScheduledPosts = function() {
+  Post.find({submitted: false}, function(err, posts) {
+    if(err) return console.log('An error occured in Trigger:', err);
+    if(posts.length === 0) return console.log('No Posts in Queue!');
+    
+    posts.forEach(function(post) {
+      // TODO: Post to reddit when it's time.
+    });
+  });
+};
 
 app.start = function() {
   this.listen(config.port, function() {
     console.log('Listening on port', config.port);
   });
+  setInterval(this.triggerScheduledPosts, 30 * 1000);
 };
 
 module.exports = app;

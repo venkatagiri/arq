@@ -77,7 +77,7 @@
           <li class="post">
             <a href="<%= el.link %>" target="_blank"><%= el.title %></a>
             <small>/r/<%= el.subreddit %>
-            (scheduled at <%= el.scheduledTime.toLocaleDateString() + ' ' + el.scheduledTime.toLocaleTimeString() %>)</small>
+            (scheduled at <%= formatTime(el.scheduledTime, el.timezoneOffset) %>)</small>
           </li>
         <% }); %>
         </ul>
