@@ -82,7 +82,7 @@ app.get('/login', function(request, response) {
 
 app.get('/logout', function(request, response) {
   request.session.destroy();
-  response.redirect('arq/'); //TODO
+  response.redirect(config.mountPath);
 });
 
 app.get('/callback', function(request, response) {
@@ -107,7 +107,7 @@ app.get('/callback', function(request, response) {
         user.save(function(err) {
           request.session.regenerate(function() {
             request.session.user = user;
-            response.redirect('arq/'); //TODO
+            response.redirect(config.mountPath);
           });
         });
       });
@@ -126,13 +126,9 @@ app.post('/schedule', function(request, response) {
     timezoneOffset: parseInt(request.body.timezoneOffset, 10),
     scheduledTime: helpers.parseDate(request.body.date, request.body.time, request.body.timezoneOffset)
   }, function(err) {
-    if(err) {
-      request.session.msg = err;
-      response.redirect('arq/');
-    } else {
-      request.session.msg = 'Link has been scheduled!';
-      response.redirect('arq/');
-    }
+    if(err) request.session.msg = err;
+    else request.session.msg = 'Link has been scheduled!';
+    response.redirect(config.mountPath);
   });
 });
 
