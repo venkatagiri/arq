@@ -34,6 +34,19 @@ module.exports = {
         callback(JSON.parse(res.text));
       });
   },
+  refreshAccessToken: function(refreshToken, callback) {
+    agent.post(config.url.accessToken)
+      .type('form')
+      .send({
+        refresh_token: refreshToken,
+        grant_type: 'refresh_token',
+        redirect_uri: config.redditCallback
+      })
+      .set('Authorization', 'Basic ' + (new Buffer(config.redditKey+':'+config.redditSecret).toString('base64')))
+      .end(function(res) {
+        callback(JSON.parse(res.text));
+      });
+  },
   get: function(accessToken, url, callback) {
     agent.get(url)
       .set('Authorization', 'Bearer ' + accessToken)
@@ -62,6 +75,6 @@ module.exports = {
       title: data.title,
       url: data.link
     };
-    this.post(accessToken, config.url.submit, data, callback);
+    this.post(accessToken, config.url.submit, params, callback);
   }
 };

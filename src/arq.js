@@ -94,13 +94,14 @@ app.get('/callback', function(request, response) {
     var tokens = {
       accessToken: res.access_token,
       refreshToken: res.refresh_token,
-      expiresIn: res.expires_in
+      expiresIn: res.expires_in,
+      fetchDate: new Date()
     };
     reddit.userDetails(tokens.accessToken, function(res) {
       if(res.error || !res.name) return response.send('Failed to fetch user details!');
       User.findOne({name: res.name}, function(err, user) {
         if(!user) {
-          console.log('User not found!', res.name);
+          console.log('User(%s) not found!', res.name);
           user = new User({name: res.name});
         }
         user.tokens = tokens;
@@ -132,13 +133,54 @@ app.post('/schedule', function(request, response) {
   });
 });
 
-app.triggerScheduledPosts = function() {
-  Post.find({submitted: false}, function(err, posts) {
-    if(err) return console.log('An error occured in Trigger:', err);
-    if(posts.length === 0) return console.log('No Posts in Queue!');
+// Submit the scheduled posts
+app.submitScheduledPosts = function() {
+  Post.find({submitted: false, scheduledTime: {$lt: new Date()}}, function(err, posts) {
+    if(err) return console.error('SubmitScheduledPosts: Error(%s)', err);
+    if(posts.length === 0) return console.log('SubmitScheduledPosts: No Posts in Queue!');
     
     posts.forEach(function(post) {
-      // TODO: Post to reddit when it's time.
+      User.findOne({name: post.username}, function(err, user) {
+        reddit.submit(user.tokens.accessToken, post, function(res) {
+          if(res.error) return console.error('SubmitScheduledPosts: Failed(%s by %s) - Error(%s)', post.title, post.username, res.error);
+          post.submitted = true;
+          post.save();
+          console.log('SubmitScheduledPosts: Successful(%s by %s)', post.title, post.username);
+        });
+      });
+    });
+  });
+};
+
+// Refresh access tokens if the user has a post scheduled in the next 30 minutes
+app.refreshUserTokens = function() {
+  var currentTime = new Date(),
+    threshold = new Date(currentTime.getTime() + 30*60*1000);
+
+  User.find(function(err, users) {
+    users.forEach(function(user) {
+      // If the token has not expired, skip the user.
+      if((user.tokens.fetchDate.getTime() + user.tokens.expiresIn * 1000) > currentTime.getTime()) return;
+
+      // Check if there is a post scheduled in the next 30 minutes for the user.
+      Post.findOne({submitted: false, scheduledTime: {$lt: threshold}}, function(err, post) {
+        if(err) return console.error('RefreshUserTokens: Error(%s)', err);
+        if(!post) return console.log('RefreshUserTokens: No scheduled post found for user %s', post.username);
+
+        // If a post is found, then refresh the user's token.
+        reddit.refreshAccessToken(user.tokens.refreshToken, function(res) {
+          if(res.error || !res.access_token) return console.error('RefreshUserTokens: Failed to refresh tokens for user %s!', user.name);
+          var tokens = {
+            accessToken: res.access_token,
+            refreshToken: res.refresh_token,
+            expiresIn: res.expires_in,
+            fetchDate: new Date()
+          };
+          user.tokens = tokens;
+          user.save();
+          console.log('RefreshUserTokens: User %s successful!', user.name);
+        });
+      });
     });
   });
 };
@@ -147,7 +189,8 @@ app.start = function() {
   this.listen(config.port, function() {
     console.log('Listening on port', config.port);
   });
-  setInterval(this.triggerScheduledPosts, 30 * 1000);
+  setInterval(this.refreshUserTokens, 60 * 1000);
+  setInterval(this.submitScheduledPosts, 60 * 1000);
 };
 
 module.exports = app;
