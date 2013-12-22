@@ -163,9 +163,9 @@ app.refreshUserTokens = function() {
       if((user.tokens.fetchDate.getTime() + user.tokens.expiresIn * 1000) > currentTime.getTime()) return;
 
       // Check if there is a post scheduled in the next 30 minutes for the user.
-      Post.findOne({submitted: false, scheduledTime: {$lt: threshold}}, function(err, post) {
+      Post.findOne({username: user.name, submitted: false, scheduledTime: {$lt: threshold}}, function(err, post) {
         if(err) return console.error('RefreshUserTokens: Error(%s)', err);
-        if(!post) return console.log('RefreshUserTokens: No scheduled post found for user %s', post.username);
+        if(!post) return console.log('RefreshUserTokens: No scheduled post found for user %s', user.name);
 
         // If a post is found, then refresh the user's token.
         reddit.refreshAccessToken(user.tokens.refreshToken, function(res) {
