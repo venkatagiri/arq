@@ -11,7 +11,7 @@ var PostSchema = new mongoose.Schema({
 });
 
 PostSchema.path('title').validate(function(value) {
-  return (/^[\w \(\)\-]+$/).test(value);
+  return (/^[\w \(\)\-!]+$/).test(value);
 }, 'Invalid Title');
 
 PostSchema.path('link').validate(function(value) {
