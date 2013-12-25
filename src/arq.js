@@ -127,7 +127,7 @@ app.post('/schedule', function(request, response) {
     timezoneOffset: parseInt(request.body.timezoneOffset, 10),
     scheduledTime: helpers.parseDate(request.body.date, request.body.time, request.body.timezoneOffset)
   }, function(err) {
-    if(err) request.session.msg = err;
+    if(err) request.session.msg = helpers.getFirstMember(err.errors).message;
     else request.session.msg = 'Link has been scheduled!';
     response.redirect(config.mountPath);
   });
