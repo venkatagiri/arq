@@ -86,7 +86,7 @@
       <script>
         var nodes = document.getElementsByTagName('nav')[0].getElementsByTagName('a');
         window.addEventListener('hashchange', function onHashChange() {
-          for(var i in nodes) {
+          for(var i=0, len=nodes.length; i < len;  i++) {
             if(nodes[i].href.split('#')[1] === location.hash.substr(1)) nodes[i].className = 'active';
             else nodes[i].className = '';
           }
