@@ -7,7 +7,8 @@ var PostSchema = new mongoose.Schema({
   subreddit: {type: String},
   scheduledTime: {type: Date},
   timezoneOffset: {type: Number},
-  submitted: {type: Boolean, default: false}
+  submitted: {type: Boolean, default: false},
+  redditId: {type: String}
 });
 
 PostSchema.path('title').validate(function(value) {

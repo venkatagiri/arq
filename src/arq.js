@@ -67,7 +67,7 @@ app.configure(function() {
 // App Endpoints
 app.get('/', function(request, response) {
   if(request.session.user) {
-    Post.find({username: request.session.user.name}, function(err, posts) {
+    Post.find({username: request.session.user.name}).sort('-scheduledTime').exec(function(err, posts) {
       response.locals.posts = posts;
       response.render('index');
     });
@@ -137,13 +137,14 @@ app.post('/schedule', function(request, response) {
 app.submitScheduledPosts = function() {
   Post.find({submitted: false, scheduledTime: {$lt: new Date()}}, function(err, posts) {
     if(err) return console.error('SubmitScheduledPosts: Error(%s)', err);
-    if(posts.length === 0) return console.log('SubmitScheduledPosts: No Posts in Queue!');
+    if(posts.length === 0) return; // Nothing to submit this minute.
     
     posts.forEach(function(post) {
       User.findOne({name: post.username}, function(err, user) {
         reddit.submit(user.tokens.accessToken, post, function(res) {
-          if(res.error) return console.error('SubmitScheduledPosts: Failed(%s by %s) - Error(%s)', post.title, post.username, res.error);
+          if(res.json.error) return console.error('SubmitScheduledPosts: Failed(%s by %s) - Error(%s)', post.title, post.username, res.json.error);
           post.submitted = true;
+          post.redditId = res.json.data.id;
           post.save();
           console.log('SubmitScheduledPosts: Successful(%s by %s)', post.title, post.username);
         });
@@ -164,7 +165,7 @@ app.refreshUserTokens = function() {
 
       // Check if there is a post scheduled in the next 30 minutes for the user.
       Post.findOne({username: user.name, submitted: false, scheduledTime: {$lt: threshold}}, function(err, post) {
-        if(err) return console.error('RefreshUserTokens: Error(%s)', err);
+        if(err) return console.error('RefreshUserTokens: User(%s) Error(%s)', user.name, err);
         if(!post) return; // Don't refresh token as no post is scheduled
 
         // If a post is found, then refresh the user's token.
@@ -178,7 +179,7 @@ app.refreshUserTokens = function() {
           };
           user.tokens = tokens;
           user.save();
-          console.log('RefreshUserTokens: User %s successful!', user.name);
+          console.log('RefreshUserTokens: Successful for User(%s)', user.name);
         });
       });
     });

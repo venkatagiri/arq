@@ -90,14 +90,21 @@ article:target {
 
 /* Scheduled Posts */
 .posts {
-  list-style-type: disc;
-  padding: 0 2em;
+  list-style-type: none;
+  padding: 0 1em;
   margin: 1em 0;
 }
 .posts .post {
   padding: 0.5em 0;
 }
-
+.posts .post:before {
+  content: '•';
+  margin-right: 1em;
+}
+.posts .submitted:before {
+  content: '✔';
+  margin-right: 0.4em;
+}
 /* New Post */
 form {
   margin: 1em 0;

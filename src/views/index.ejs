@@ -74,8 +74,8 @@
         <% } else { %>
         <ul class="posts">
         <% posts.forEach(function(el, index) { %>
-          <li class="post">
-            <a href="<%= el.link %>" target="_blank"><%= el.title %></a>
+          <li class="post <%= el.submitted ? 'submitted' : '' %>">
+            <a href="<%= el.submitted ? 'http://redd.it/'+el.redditId : el.link %>" target="_blank"><%= el.title %></a>
             <small>/r/<%= el.subreddit %>
             (scheduled at <%= formatTime(el.scheduledTime, el.timezoneOffset) %>)</small>
           </li>
