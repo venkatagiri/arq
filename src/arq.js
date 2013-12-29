@@ -12,7 +12,7 @@ var express = require('express'),
 app.configure(function() {
   // Logger.
   app.use(function(request, response, next) {
-    console.log('[%s] [%s] %s %s', Date(), (request.headers['x-forwarded-for'] || request.ip), request.method, request.url);
+    console.log('[%s] [%s] %s %s', Date(), (request.headers['x-forwarded-for'].split(', ')[0] || request.ip), request.method, request.url);
     next();
   });
 
