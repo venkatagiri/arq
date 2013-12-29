@@ -84,7 +84,7 @@
         <% } %>
       </article>
       <script>
-        var nodes = document.getElementsByTagName('nav')[0].childNodes;
+        var nodes = document.getElementsByTagName('nav')[0].getElementsByTagName('a');
         window.addEventListener('hashchange', function onHashChange() {
           for(var i in nodes) {
             if(nodes[i].href.split('#')[1] === location.hash.substr(1)) nodes[i].className = 'active';
