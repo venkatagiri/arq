@@ -70,7 +70,6 @@
       </article>
       <article id="posts">
         <% if(posts.length === 0) { %>
-        <br />
         <p>Boooo! None scheduled yet. Create a <a href="#new">new post</a> now to get started.</p>
         <% } else { %>
         <ul class="posts">
@@ -85,17 +84,16 @@
         <% } %>
       </article>
       <script>
-        // Show scheduled posts by default.
-        location.href = '#posts';
-        document.getElementsByTagName('nav')[0].addEventListener('click', function onClick(e) {
-          if(e.target.tagName !== 'A') return;
-          var nodes = e.target.parentNode.childNodes;
-          // Remove 'active' class from nav elements.
-          for(var i in nodes) if(nodes[i] && nodes[i].tagName === 'A') nodes[i].className = '';
-          // Set the clicked element as active.
-          e.target.className = 'active';
+        var nodes = document.getElementsByTagName('nav')[0].childNodes;
+        window.addEventListener('hashchange', function onHashChange() {
+          for(var i in nodes) {
+            if(nodes[i].href.split('#')[1] === location.hash.substr(1)) nodes[i].className = 'active';
+            else nodes[i].className = '';
+          }
         });
 
+        // Show scheduled posts by default.
+        location.href = '#posts';
       </script>
     <% } %>
   </section>
