@@ -1,7 +1,7 @@
 {
   "name": "arq",
   "description": "arq allows you to schedule a link to be posted to reddit at a later time.",
-  "version": "0.1.9",
+  "version": "0.2.9",
   "repository": {
     "type": "git",
     "url": "git://github.com/venkatagiri/arq.git"
@@ -13,7 +13,6 @@
   },
   "main": "./index.js",
   "scripts": {
-    "test": "mocha",
     "start": ". .env && nodemon -w . ./index.js"
   },
   "dependencies": {
