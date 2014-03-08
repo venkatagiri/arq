@@ -6,7 +6,7 @@ var express = require('express'),
   reddit = require('./reddit'),
   User = require('./user'),
   Post = require('./post'),
-  helpers = require('./helpers');
+  util = require('./util');
 
 // Base Setup
 app.configure(function() {
@@ -59,7 +59,7 @@ app.configure(function() {
 
   // Provide access to helper methods from templates
   app.use(function(request, response, next) {  
-    response.locals.formatTime = helpers.formatTime;
+    response.locals.formatTime = util.formatTime;
     next();
   });
 });
@@ -125,9 +125,9 @@ app.post('/schedule', function(request, response) {
     link: request.body.link,
     subreddit: request.body.subreddit,
     timezoneOffset: parseInt(request.body.timezoneOffset, 10),
-    scheduledTime: helpers.parseDate(request.body.date, request.body.time, request.body.timezoneOffset)
+    scheduledTime: util.parseDate(request.body.date, request.body.time, request.body.timezoneOffset)
   }, function(err) {
-    if(err) request.session.msg = helpers.getFirstMember(err.errors).message;
+    if(err) request.session.msg = util.getFirstMember(err.errors).message;
     else request.session.msg = 'Link has been scheduled!';
     response.redirect(config.mountPath);
   });
