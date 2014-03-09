@@ -1,3 +1,3 @@
-# [arq](http://venkatagiri.me/arq)
+# arq: a reddit queue
 
-**arq** allows you to queue up a link to be posted to reddit at a scheduled time.
+A Reddit post scheduler - http://venkatagiri.me/arq
