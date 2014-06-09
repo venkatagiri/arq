@@ -12,7 +12,7 @@ var express = require('express'),
 app.configure(function() {
   // Logger.
   app.use(function(request, response, next) {
-    console.log('[%s] [%s] %s %s', Date(), (request.headers['x-forwarded-for'].split(', ')[0] || request.ip), request.method, request.url);
+    console.log('[%s] [%s] %s %s', Date(), (request.headers['x-forwarded-for'] || request.ip).split(', ')[0], request.method, request.url);
     next();
   });
 
@@ -135,12 +135,19 @@ app.post('/schedule', function(request, response) {
 
 // Submit the scheduled posts
 app.submitScheduledPosts = function() {
+  var currentTime = new Date();
+
   Post.find({submitted: false, scheduledTime: {$lt: new Date()}}, function(err, posts) {
     if(err) return console.error('SubmitScheduledPosts: Error(%s)', err);
-    if(posts.length === 0) return; // Nothing to submit this minute.
+    if(posts.length === 0) return console.log('No posts to submit!'); // Nothing to submit this minute.
     
     posts.forEach(function(post) {
       User.findOne({name: post.username}, function(err, user) {
+        if(err) return console.log('User(%s) not found. Error(%s)', post.username, err);
+
+        // If the user's token is already expired, wait for the refresh of tokens.
+        if((user.tokens.fetchDate.getTime() + user.tokens.expiresIn * 1000) <= currentTime.getTime()) return;
+
         reddit.submit(user.tokens.accessToken, post, function(res) {
           if(res.json.error) return console.error('SubmitScheduledPosts: Failed(%s by %s) - Error(%s)', post.title, post.username, res.json.error);
           post.submitted = true;
@@ -166,7 +173,7 @@ app.refreshUserTokens = function() {
       // Check if there is a post scheduled in the next 30 minutes for the user.
       Post.findOne({username: user.name, submitted: false, scheduledTime: {$lt: threshold}}, function(err, post) {
         if(err) return console.error('RefreshUserTokens: User(%s) Error(%s)', user.name, err);
-        if(!post) return; // Don't refresh token as no post is scheduled
+        if(!post || !user.tokens || !user.tokens.refreshToken) return; // Don't refresh token as no post is scheduled or if refresh token is missing.
 
         // If a post is found, then refresh the user's token.
         reddit.refreshAccessToken(user.tokens.refreshToken, function(res) {
